@@ -1,0 +1,50 @@
+#!/usr/bin/python3
+
+DATA_PATH = "./data/2024/day_1.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.readlines()
+
+def getting_lists():
+    list1 = []
+    list2 = []
+    content = get_file_content(DATA_PATH)
+    for line in content:
+        values = line.split()
+        try:
+            list1.append(int(values[0]))
+            list2.append(int(values[1]))
+        except:
+            print("Error: Invalid data")
+
+    list1.sort()
+    list2.sort()
+    return list1, list2
+
+def part_1(list1, list2):
+    dist = 0
+    for i in range(len(list1)):
+        distance = 0
+        if (list1[i] > list2[i]):
+            distance = list1[i] - list2[i]
+        else:
+            distance = list2[i] - list1[i]
+        dist += distance
+    return dist
+
+def part_2(list1, list2):
+    similarity = 0
+    for nb in list1:
+        count = 0
+        for value in list2:
+            if value == nb:
+                count += 1
+        similarity += nb * count
+    return similarity
+
+if __name__ == "__main__":
+    list1, list2 = getting_lists()
+    print(f"Part 1: {part_1(list1, list2)}")
+    print(f"Part 2: {part_2(list1, list2)}")
+

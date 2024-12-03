@@ -1,0 +1,71 @@
+#!/usr/bin/python3
+
+DATA_PATH = "./data/2024/day_2.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.readlines()
+
+def get_matrice():
+    content = get_file_content(DATA_PATH)
+    lists = []
+    for line in content:
+        tmp = []
+        for i in line.split():
+            try:
+                tmp.append(int(i))
+            except:
+                pass
+        lists.append(tmp)
+    return lists
+
+def is_safe_increase(list):
+    ref = list[0]
+    for i in range(1, len(list)):
+        if ref + 1 <= list[i] <= ref + 3:
+            ref = list[i]
+        else:
+            return False
+    return True
+
+def is_safe_decrease(list):
+    ref = list[0]
+    for i in range(1, len(list)):
+        if ref - 1 >= list[i] >= ref - 3:
+            ref = list[i]
+        else:
+            return False
+    return True
+
+def copy_list_without_index(list, index):
+    tmp = []
+    for i in range(0, len(list)):
+        if i != index:
+            tmp.append(list[i])
+    return tmp
+
+def part_1(matrice):
+    safe = 0
+    for report in matrice:
+        if not is_safe_increase(report) and not is_safe_decrease(report):
+            continue
+        safe += 1
+    return safe
+
+def part_2(matrice):
+    safe = 0
+    for report in matrice:
+        if is_safe_decrease(report) or is_safe_increase(report):
+            safe += 1
+            continue
+        for i in range(0, len(report)):
+            tmp = copy_list_without_index(report, i)
+            if is_safe_decrease(tmp) or is_safe_increase(tmp):
+                safe += 1
+                break
+    return safe
+
+if __name__ == "__main__":
+    matrice = get_matrice()
+    print(f"Part 1: {part_1(matrice)}")
+    print(f"Part 2: {part_2(matrice)}")
