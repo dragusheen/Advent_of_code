@@ -34,7 +34,7 @@ if [ ! -f "./src/$YEAR/$DAY" ]; then
 
     echo "#!/usr/bin/python3" >> ./src/$YEAR/day_$DAY
     echo "" >> ./src/$YEAR/day_$DAY
-    echo "DATA_PATH = \"./data/2024/day_3.txt\"" >> ./src/$YEAR/day_$DAY
+    echo "DATA_PATH = \"./data/$YEAR/day_$DAY.txt\"" >> ./src/$YEAR/day_$DAY
     echo "" >> ./src/$YEAR/day_$DAY
     echo "def get_file_content(filepath):" >> ./src/$YEAR/day_$DAY
     echo "    with open(filepath, 'r') as file:" >> ./src/$YEAR/day_$DAY
