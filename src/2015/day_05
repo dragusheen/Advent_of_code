@@ -1,0 +1,66 @@
+#!/usr/bin/python3
+
+import re
+DATA_PATH = "./data/2015/day_05.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def count_vowels(str):
+    count = 0
+    for char in str:
+        count += 1 if char in "aeiou" else 0
+    return count >= 3
+
+def count_double(str):
+    count = 0
+    for i in range(len(str) - 1):
+        count += 1 if str[i] == str[i + 1] else 0
+    return count >= 1
+
+def count_pattern(str):
+    return len(re.findall(r"ab|cd|pq|xy", str)) == 0
+
+def part_1(content):
+    count = 0
+    for line in content:
+        ok = 0
+        ok += 1 if count_vowels(line) else 0
+        ok += 1 if count_double(line) else 0
+        ok += 1 if count_pattern(line) else 0
+        count += 1 if ok == 3 else 0
+    return count
+
+def count_double_double(str):
+    lists = []
+    for i in range(len(str) - 1):
+        lists.append((i, f"{str[i]}{str[i + 1]}"))
+    count = 0
+    for i in range(len(lists) - 1):
+        (index, double) = lists[i]
+        for tmp in lists[i + 1:]:
+            if tmp[0] != index + 1 and tmp[1] == double:
+                count += 1
+    return count >= 1
+
+def sandwich(str):
+    count = 0
+    for i in range(len(str) - 2):
+        count += 1 if str[i] == str[i + 2] else 0
+    return count >= 1
+
+def part_2(content):
+    count = 0
+    for line in content:
+        ok = 0
+        ok += 1 if count_double_double(line) else 0
+        ok += 1 if sandwich(line) else 0
+        count += 1 if ok == 2 else 0
+    return count
+
+if __name__ == "__main__":
+    content = get_file_content(DATA_PATH)
+    content = content.split("\n")
+    print(f"Part 1: {part_1(content)}")
+    print(f"Part 2: {part_2(content)}")
