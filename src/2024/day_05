@@ -1,0 +1,79 @@
+#!/usr/bin/python3
+
+DATA_PATH = "./data/2024/day_05.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def find_page(rules, first):
+    index = 0
+    for (p1, _) in rules:
+        if p1 == first:
+            return index
+        index += 1
+    return -1
+
+def parse_input(content):
+    content = content.split("\n")
+    rules = []
+    updates = []
+
+    for line in content:
+        if '|' in line:
+            first, second = line.split('|')
+            first = int(first)
+            second = int(second)
+            index = find_page(rules, first)
+            if index < 0:
+                rules.append((first, [second]))
+            else:
+                rules[index][1].append(second)
+        elif ',' in line:
+            updates.append(list(map(int, line.split(','))))
+    return rules, updates
+
+def separate_lists(rules, update):
+    lists = ([], [])
+
+    for update in updates:
+        done = []
+        ok = True
+        for page in update:
+            index = find_page(rules, page)
+            if not index == -1:
+                if any(x in rules[index][1] for x in done):
+                    ok = False
+                    break
+            done.append(page)
+        lists[0 if ok else 1].append(update)
+    return lists
+
+def add_middle_list(lists):
+    count = 0
+    for list in lists:
+        count += list[int(len(list) / 2)]
+    return count
+
+def sort_lists(rules, lists):
+    sorted = []
+
+    for list in lists:
+        values = []
+        for elem in list:
+            index = 0
+            (first, second) = rules[find_page(rules, elem)]
+            for v in values:
+                if v in second:
+                    break
+                index += 1
+            values.insert(index, elem)
+        sorted.append(values)
+    return sorted
+
+if __name__ == "__main__":
+    content = get_file_content(DATA_PATH)
+    rules, updates = parse_input(content)
+    lists = separate_lists(rules, content)
+    print(f"Part 1: {add_middle_list(lists[0])}")
+    print(f"Part 2: {add_middle_list(sort_lists(rules, lists[1]))}")
