@@ -1,0 +1,27 @@
+#!/usr/bin/python3
+
+DATA_PATH = "./data/2015/day_03.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def part_1(content, nb):
+    santa = []
+
+    for i in range(0, nb):
+        santa.append([0, 0])
+    houses = []
+
+    for index, char in enumerate(content):
+        i = index % len(santa)
+        if not (santa[i][0], santa[i][1]) in houses:
+            houses.append((santa[i][0], santa[i][1]))
+        santa[i][0] += 1 if char == '>' else -1 if char == '<' else 0
+        santa[i][1] += 1 if char == 'v' else -1 if char == '^' else 0
+    return len(houses)
+
+if __name__ == "__main__":
+    content = get_file_content(DATA_PATH)
+    print(f"Part 1: {part_1(content, 1)}")
+    print(f"Part 2: {part_1(content, 2)}")

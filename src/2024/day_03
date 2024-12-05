@@ -2,7 +2,7 @@
 
 import re
 
-DATA_PATH = "./data/2024/day_3.txt"
+DATA_PATH = "./data/2015/day_03.txt"
 
 def get_file_content(filepath):
     with open(filepath, 'r') as file:

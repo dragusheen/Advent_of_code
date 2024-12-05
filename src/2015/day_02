@@ -1,0 +1,49 @@
+#!/usr/bin/python3
+
+DATA_PATH = "./data/2015/day_02.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def get_wrapping_paper_list():
+    content = get_file_content(DATA_PATH)
+    l = []
+    for line in content.split('\n'):
+        l.append(list(map(int, line.split('x'))))
+    return l
+
+def get_smallest_size(w, h, l):
+    wh = w * h
+    wl = w * l
+    hl = h * l
+    return min(wh, min(wl, hl))
+
+def calc_wrapping_paper(w, h, l):
+    return 2*l*w + 2*w*h + 2*h*l + get_smallest_size(w, h, l)
+
+def part_1(list):
+    result = 0
+    for elem in list:
+        result += calc_wrapping_paper(elem[0], elem[1], elem[2])
+    return result
+
+def get_smallest_perimeter(w, h, l):
+    wh = 2 * w + 2* h
+    wl = 2 * w + 2* l
+    hl = 2 * h + 2* l
+    return min(wh, min(wl, hl))
+
+def calc_ribbon(w, h, l):
+    return w*h*l + get_smallest_perimeter(w, h, l)
+
+def part_2(list):
+    result = 0
+    for elem in list:
+        result += calc_ribbon(elem[0], elem[1], elem[2])
+    return result
+
+if __name__ == "__main__":
+    list = get_wrapping_paper_list()
+    print(f"Part 1: {part_1(list)}")
+    print(f"Part 2: {part_2(list)}")
