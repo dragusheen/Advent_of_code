@@ -1,0 +1,66 @@
+#!/usr/bin/python3
+
+DATA_PATH = "./data/2024/day_06.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def set_val(tab, y, x, val):
+    row = list(tab[y])
+    row[x] = val
+    tab[y] = ''.join(row)
+    return tab
+
+def get_guard_info(content):
+    for i in range(len(content)):
+        for j in range(len(content[0])):
+            if content[i][j] != '.' and content[i][j] != '#':
+                return (i, j)
+
+def part_1(tmp, coord):
+    content = [[char for char in line] for line in tmp]
+    dup = [[char for char in line] for line in tmp]
+    forward = { '^': (-1, 0), '>': (0, 1), 'v': (1, 0), '<': (0, -1)}
+    next = { '^': '>', '>': 'v', 'v': '<', '<': '^' }
+    (i, j) = coord
+    list = []
+    while True:
+        if i >= len(content) - 1 or i <= 0 or j >= len(content[0]) - 1 or j <= 0:
+            break
+        (bi, bj) = (i, j)
+        d = content[i][j]
+        if (i, j, d) in list:
+            return -1
+        i += forward[d][0]
+        j += forward[d][1]
+        if content[i][j] == '#':
+            (i, j) = (bi, bj)
+            content = set_val(content, i, j, next[d])
+        else:
+            if dup[bi][bj] == 'X':
+                list.append((bi, bj, d))
+            dup = set_val(dup, bi, bj, 'X')
+            content = set_val(set_val(content, bi, bj, '.'), i, j, d)
+    dup = set_val(dup, i, j, 'X')
+    return sum([i.count('X') for i in dup])
+
+def part_2(content, coord):
+    count = 0
+    len_line = len(content[0])
+    tot_len = len(content) * len_line
+    for i in range(len(content)):
+        for j in range(len(content[0])):
+            if content[i][j] != '.':
+                continue
+            dup = [[char for char in line] for line in content]
+            dup = set_val(dup, i, j, '#')
+            count += 1 if part_1(dup, coord) == -1 else 0
+    return count
+
+if __name__ == "__main__":
+    content = get_file_content(DATA_PATH)
+    content = content.split("\n")
+    coord = get_guard_info(content)
+    print(f"Part 1: {part_1([[char for char in line] for line in content], coord)}")
+    print(f"Part 2: {part_2([[char for char in line] for line in content], coord)}")
