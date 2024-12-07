@@ -1,0 +1,63 @@
+#!/usr/bin/python3
+
+DATA_PATH = "./data/2024/day_07.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def check(list, madeOf):
+    for i in list:
+        if not i == madeOf:
+            return False
+    return True
+
+def get_oparation_possibility(parts, operations):
+    nb_operations = len(parts) - 1
+    possibilities = []
+    index = [ 0 for _ in range(nb_operations)]
+    possibilities.append([operations[i] for i in index])
+    while not check(index, len(operations)):
+        index[0] += 1
+        for i in range(nb_operations):
+            if index[i] < len(operations):
+                break
+            index[i] = 0
+            if i + 1 >= nb_operations:
+                return possibilities
+            index[i + 1] += 1
+        possibilities.append([operations[i] for i in index])
+    return possibilities
+
+def part_1(content, possible_operations):
+    count = 0
+    for line in content:
+        parts = line.split(": ")
+        result = int(parts[0])
+        parts = list(map(int, parts[1].split(" ")))
+        operations = get_oparation_possibility(parts, possible_operations)
+        for op in operations:
+            tmp = parts[0]
+            for i in range(1, len(parts)):
+                tmp = op[i - 1](tmp, parts[i])
+            if result == tmp:
+                count += result
+                break
+    return count
+
+if __name__ == "__main__":
+    content = get_file_content(DATA_PATH)
+    content = content.split("\n")
+
+    part_1_op = [
+        lambda a, b : a + b,
+        lambda a, b : a * b
+    ]
+    part_2_op = [
+        lambda a, b : a + b,
+        lambda a, b : a * b,
+        lambda a, b : int(str(a) + str(b))
+    ]
+
+    print(f"Part 1: {part_1(content, part_1_op)}")
+    print(f"Part 2: {part_1(content, part_2_op)}")
