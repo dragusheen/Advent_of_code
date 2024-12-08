@@ -1,0 +1,72 @@
+#!/usr/bin/python3
+
+import re
+DATA_PATH = "./data/2015/day_06.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def parse_command(content):
+    commands = []
+    for line in content.split("\n"):
+        pattern = r"^(turn on|turn off|toggle) (\d+),(\d+) through (\d+),(\d+)"
+        match = re.match(pattern, line)
+        if match:
+            action = match.group(1)
+            x1, y1 = int(match.group(2)), int(match.group(3))
+            x2, y2 = int(match.group(4)), int(match.group(5))
+            commands.append((action, (x1, y1), (x2, y2)))
+    return commands
+
+def operation(action, coord1, coord2, grid):
+    for i in range(coord1[1], coord2[1] + 1):
+        for j in range(coord1[0], coord2[0] + 1):
+            if action == "toggle":
+                grid[i][j] = not grid[i][j]
+            if action == "turn on":
+                grid[i][j] = True
+            if action == "turn off":
+                grid[i][j] = False
+    return grid
+
+def part_1(commands):
+    grid = [[False for _ in range(1000)] for _ in range(1000)]
+    for (action, coord1, coord2) in commands:
+        for i in range(coord1[1], coord2[1] + 1):
+            for j in range(coord1[0], coord2[0] + 1):
+                if action == "toggle":
+                    grid[i][j] = not grid[i][j]
+                if action == "turn on":
+                    grid[i][j] = True
+                if action == "turn off":
+                    grid[i][j] = False
+    count = 0
+    for line in grid:
+        for nb in line:
+            if nb == True:
+                count += 1
+    return count
+
+def part_2(commands):
+    grid = [[0 for _ in range(1000)] for _ in range(1000)]
+    for (action, coord1, coord2) in commands:
+        for i in range(coord1[1], coord2[1] + 1):
+            for j in range(coord1[0], coord2[0] + 1):
+                if action == "toggle":
+                    grid[i][j] += 2
+                if action == "turn on":
+                    grid[i][j] += 1
+                if action == "turn off":
+                    grid[i][j] -= 1 if grid[i][j] > 0 else 0
+    count = 0
+    for line in grid:
+        for nb in line:
+            count += nb
+    return count
+
+if __name__ == "__main__":
+    content = get_file_content(DATA_PATH)
+    commands = parse_command(content)
+    print(f"Part 1: {part_1(commands)}")
+    print(f"Part 2: {part_2(commands)}")
