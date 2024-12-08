@@ -1,0 +1,55 @@
+#!/usr/bin/python3
+
+DATA_PATH = "./data/2024/day_08.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def get_antenna_index(list, char):
+    for i in range(len(list)):
+        if list[i][0] == char:
+            return i
+    return -1
+
+def get_antennas(map):
+    antenna = []
+    for i in range(len(map)):
+        for j in range(len(map[0])):
+            if not map[i][j] == '.':
+                index = get_antenna_index(antenna, map[i][j])
+                if index == -1:
+                    antenna.append((map[i][j], [(i, j)]))
+                else:
+                    antenna[index][1].append((i, j))
+    return antenna
+
+def get_antinodes(map, antennas, max_it):
+    antinodes = set()
+    for (_, coords) in antennas:
+        for a in coords:
+            for b in coords:
+                if max_it < 0:
+                    antinodes.add(b)
+                if not a == b:
+                    dist = (b[0] - a[0], b[1] - a[1])
+                    ref = (b[0] + dist[0], b[1] + dist[1])
+                    it = 0
+                    while 0 <= ref[0] < len(map) and 0 <= ref[1] < len(map[0]):
+                        if max_it > 0 and it >= max_it:
+                            break
+                        antinodes.add(ref)
+                        ref = (ref[0] + dist[0], ref[1] + dist[1])
+                        it += 1
+    return antinodes
+
+def part(map, it_max):
+    antennas = get_antennas(map)
+    antinodes = get_antinodes(map, antennas, it_max)
+    return len(antinodes)
+
+if __name__ == "__main__":
+    content = get_file_content(DATA_PATH)
+    content = content.split("\n")
+    print(f"Part 1: {part(content, 1)}")
+    print(f"Part 2: {part(content, -1)}")
