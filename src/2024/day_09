@@ -1,0 +1,94 @@
+#!/usr/bin/python3
+
+DATA_PATH = "./data/2024/day_09.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def get_memory(line):
+    file_mode = True
+    ID = 0
+    memory = []
+    files = []
+    for char in line:
+        nb = int(char)
+        for _ in range(nb):
+            memory.append(ID if file_mode else -1)
+        if file_mode:
+            files.append((ID, nb, len(memory) - nb))
+            ID += 1
+        file_mode = not file_mode
+    return (memory, files)
+
+def part_1(content):
+    (memory, _) = get_memory(content)
+    i = -1
+    while True:
+        if i >= len(memory) - 1:
+            break
+        i += 1
+        if memory[i] != -1:
+            continue
+        val = -1
+        while val == -1:
+            val = memory.pop()
+        memory[i] = val
+
+    count = 0
+    for i in range(len(memory)):
+        count += i * memory[i]
+    return count
+
+def get_hole_size(memory, start):
+    count = 0
+    for i in range(start, len(memory)):
+        if memory[i] == -1:
+            count += 1
+        else:
+            break
+    return count
+
+def get_holes(memory, max_index):
+    holes = []
+    i = 0
+    while i < max_index:
+        if not memory[i] == -1:
+            i += 1
+            continue
+        hole_size = get_hole_size(memory, i)
+        holes.append((i, hole_size))
+        i += hole_size
+    return holes
+
+def erase_file(memory, id):
+    for i in range(len(memory)):
+        if memory[i] == id:
+            memory[i] = -1
+    return memory
+
+def part_2(content):
+    (memory, files) = get_memory(content)
+    while True:
+        if len(files) <= 0:
+            break
+        (file_id, file_size, file_adress) = files.pop()
+        holes = get_holes(memory, file_adress)
+        for (hole_adress, hole_size) in holes:
+            if hole_size >= file_size:
+                memory = erase_file(memory, file_id)
+                memory[hole_adress] = file_id
+                for i in range(hole_adress, hole_adress + file_size - 1):
+                    memory[i] = file_id
+                memory[hole_adress + file_size - 1] = file_id
+                break
+    count = 0
+    for i in range(len(memory)):
+        if not memory[i] == -1:
+            count += i * memory[i]
+    return count
+
+if __name__ == "__main__":
+    content = get_file_content(DATA_PATH)
+    print(f"Part 1: {part_1(content)}")
+    print(f"Part 2: {part_2(content)}")
