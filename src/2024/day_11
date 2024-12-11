@@ -1,0 +1,36 @@
+#!/usr/bin/python3
+
+from collections import Counter
+
+DATA_PATH = "./data/2024/day_11.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def evolve(stone):
+    if stone == "0":
+        return ["1"]
+    if (len(stone) % 2 == 0):
+        middle = len(stone) // 2
+        return [str(int(stone[:middle])), str(int(stone[middle:]))]
+    return [str(int(stone) * 2024)]
+
+def blink(stones):
+    new_stones = Counter()
+    for stone, count in stones.items():
+        for new_stone in evolve(stone):
+            new_stones[new_stone] += count
+    return new_stones
+
+def loop(content, it):
+    stones = Counter(content)
+    for i in range(it):
+        stones = blink(stones)
+    return sum(stones.values())
+
+if __name__ == "__main__":
+    content = get_file_content(DATA_PATH)
+    content = content.split(" ")
+    print(f"Part 1: {loop(content, 25)}")
+    print(f"Part 2: {loop(content, 75)}")

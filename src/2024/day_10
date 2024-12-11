@@ -1,0 +1,71 @@
+#!/usr/bin/python3
+
+DATA_PATH = "./data/2024/day_10.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def parse_map(content):
+    return [[int(char) for char in line] for line in content.split("\n")]
+
+def get_starts(map):
+    starts = []
+    for i in range(len(map)):
+        for j in range(len(map[0])):
+            if map[i][j] == 0:
+                starts.append((i, j))
+    return starts
+
+def get_possibilities(map, y, x):
+    possibilities = []
+    check_nb = map[y][x] + 1
+    if y > 0:
+        if map[y - 1][x] == check_nb:
+            possibilities.append((y - 1, x))
+    if x < len(map[0]) - 1:
+        if map[y][x + 1] == check_nb:
+            possibilities.append((y, x + 1))
+    if y < len(map) - 1:
+        if map[y + 1][x] == check_nb:
+            possibilities.append((y + 1, x))
+    if x > 0:
+        if map[y][x - 1] == check_nb:
+            possibilities.append((y, x - 1))
+    return possibilities
+
+def forward(map, steps, coord, l):
+    (i, j) = coord
+    if map[i][j] == 9:
+        l.append((i, j))
+        return
+    for (y, x) in steps:
+        possibilities = get_possibilities(map, y, x)
+        forward(map, possibilities, (y, x), l)
+
+def part_1(map):
+    count = 0
+    for (y, x) in get_starts(map):
+        l = []
+        possibilities = get_possibilities(map, y, x)
+        forward(map, possibilities, (y, x), l)
+        tmp = set()
+        for v in l:
+            tmp.add(v)
+        count += len(tmp)
+    return count
+
+def part_2(map):
+    count = 0
+    for (y, x) in get_starts(map):
+        l = []
+        possibilities = get_possibilities(map, y, x)
+        forward(map, possibilities, (y, x), l)
+        count += len(l)
+    return count
+
+if __name__ == "__main__":
+    content = get_file_content(DATA_PATH)
+    map = parse_map(content)
+    print(f"Part 1: {part_1(map)}")
+    print(f"Part 2: {part_2(map)}")
