@@ -1,0 +1,54 @@
+#!/usr/bin/python3
+
+import re
+from itertools import permutations
+DATA_PATH = "./data/2015/day_09.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def get_distances(content):
+    dist = {}
+    cities = set()
+    list = re.findall(r"([a-zA-Z]+) to ([a-zA-Z]+) = ([0-9]+)", content)
+    for (first, second, value) in list:
+        dist[(first, second)] = int(value)
+        cities.add(first)
+        cities.add(second)
+    return (dist, cities)
+
+def get_travel(city1, city2, dist):
+    if (city1, city2) in dist:
+        return dist[(city1, city2)]
+    return dist[(city2, city1)]
+
+def part_1(dist, cities):
+    min_dist = 99999999
+    for possibility in [list(perm) for perm in permutations(range(len(cities)), len(cities))]:
+        distance = 0
+        for i in range(len(possibility) - 1):
+            city1 = cities[possibility[i]]
+            city2 = cities[possibility[i + 1]]
+            distance += get_travel(city1, city2, dist)
+        min_dist = min(min_dist, distance)
+    return min_dist
+
+def part_2(dist, cities):
+    max_dist = -1
+    for possibility in [list(perm) for perm in permutations(range(len(cities)), len(cities))]:
+        distance = 0
+        for i in range(len(possibility) - 1):
+            city1 = cities[possibility[i]]
+            city2 = cities[possibility[i + 1]]
+            distance += get_travel(city1, city2, dist)
+        max_dist = max(max_dist, distance)
+    return max_dist
+
+if __name__ == "__main__":
+    content = get_file_content(DATA_PATH)
+    (dist, cities) = get_distances(content)
+    cities = list(cities)
+    cities.sort()
+    print(f"Part 1: {part_1(dist, cities)}")
+    print(f"Part 2: {part_2(dist, cities)}")
