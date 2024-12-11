@@ -1,0 +1,49 @@
+#!/usr/bin/python3
+
+import operator
+DATA_PATH = "./data/2015/day_07.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def parse_input(content):
+    parsed = {}
+    for line in content.split("\n"):
+        parts = line.split(" -> ")
+        parsed[parts[1]] = parts[0]
+    return parsed
+
+op = {
+    "AND": lambda a, b : operator.and_(a, b),
+    "OR": lambda a, b : operator.or_(a, b),
+    "LSHIFT": lambda a, b : operator.lshift(a, b),
+    "RSHIFT": lambda a, b : operator.rshift(a, b),
+    "NOT": lambda a: ~a & 0xFFFF,
+}
+
+signals = {}
+
+def getValue(value):
+    return int(value) if value.isdigit() else getSignal(value)
+
+def getSignal(letter):
+    value = signals[letter]
+    if isinstance(value, int):
+        return value
+    parts = value.split(" ")
+    result = 0
+    if len(parts) == 1:
+        result = getValue(value)
+    if len(parts) == 2:
+        result = op[parts[0]](getValue(parts[1]))
+    if len(parts) == 3:
+        result = op[parts[1]](getValue(parts[0]), getValue(parts[2]))
+    signals[letter] = result
+    return result
+
+
+if __name__ == "__main__":
+    content = get_file_content(DATA_PATH)
+    signals = parse_input(content)
+    print(f"Part 1: {getSignal("a")}")
