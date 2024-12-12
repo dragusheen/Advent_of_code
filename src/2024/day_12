@@ -1,0 +1,101 @@
+#!/usr/bin/python3
+
+DATA_PATH = "./data/2024/day_12.txt"
+
+from collections import Counter
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def set_val(tab, y, x, val):
+    row = list(tab[y])
+    row[x] = val
+    tab[y] = ''.join(row)
+    return tab
+
+def getRegion(map, i, j, region=[]):
+    plant = map[i][j]
+    map = set_val(map, i, j, '.')
+    region.append((i, j))
+    if i > 0:
+        if map[i - 1][j] == plant:
+            getRegion(map, i - 1, j, region)
+    if j > 0:
+        if map[i][j - 1] == plant:
+            getRegion(map, i, j - 1, region)
+    if i < len(map) - 1:
+        if map[i + 1][j] == plant:
+            getRegion(map, i + 1, j, region)
+    if j < len(map[0]) - 1:
+        if map[i][j + 1] == plant:
+            getRegion(map, i, j + 1, region)
+
+def newRegion(map, i, j, region):
+    plant = map[i][j]
+    if not plant in region:
+        dup = [[char for char in line] for line in map]
+        new_region = []
+        getRegion(dup, i, j, new_region)
+        region[plant] = [new_region]
+    else:
+        already_in = False
+        for coords in region[plant]:
+            if (i, j) in coords:
+                already_in = True
+        if not already_in:
+            dup = [[char for char in line] for line in map]
+            new_region = []
+            getRegion(dup, i, j, new_region)
+            region[plant].append(new_region)
+
+def getPerimeter(region):
+    perimeter = 0
+    for (i, j) in region:
+        sides = 4
+        sides -= 1 if (i - 1, j) in region else 0
+        sides -= 1 if (i, j + 1) in region else 0
+        sides -= 1 if (i + 1, j) in region else 0
+        sides -= 1 if (i, j - 1) in region else 0
+        perimeter += sides
+    return perimeter
+
+def calcul(regions, func):
+    tot = 0
+    for key in regions:
+        for region in regions[key]:
+            tot += len(region) * func(region)
+    return tot
+
+
+def getSides(region):
+    facing = { 'N': [], 'E': [], 'S': [], 'W': [] }
+    for (i, j) in region:
+        if not (i - 1, j) in region:
+            facing['N'].append((i, j))
+        if not (i, j + 1) in region:
+            facing['E'].append((i, j))
+        if not (i + 1, j) in region:
+            facing['S'].append((i, j))
+        if not (i, j - 1) in region:
+            facing['W'].append((i, j))
+    sides = { 'N': [], 'E': [], 'S': [], 'W': [] }
+    checks = { 'N': (0, 1), 'E': (1, 0), 'S': (0, 1), 'W': (1, 0)}
+    for key in facing:
+        for (i, j) in facing[key]:
+            (y, x) = checks[key]
+            if not (i - y, j - x) in facing[key]:
+                sides[key].append((i, j))
+    tot = 0
+    for key in sides:
+        tot += len(sides[key])
+    return tot
+
+if __name__ == "__main__":
+    content = get_file_content(DATA_PATH).split("\n")
+    regions = {}
+    for i in range(len(content)):
+        for j in range(len(content[0])):
+            newRegion(content, i, j, regions)
+    print(f"Part 1: {calcul(regions, lambda l : getPerimeter(l))}")
+    print(f"Part 2: {calcul(regions, lambda l : getSides(l))}")
