@@ -1,0 +1,64 @@
+#!/usr/bin/python3
+
+import re
+DATA_PATH = "./data/2024/day_13.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def parse_input():
+    machines = []
+    for config in get_file_content(DATA_PATH).split("\n\n"):
+        machine = {}
+        buttons = re.findall(r"X\+(\d+), Y\+(\d+)", config)
+        prize = re.findall(r"X=(\d+), Y=(\d+)", config)
+        machine["A"] = (int(buttons[0][0]), int(buttons[0][1]))
+        machine["B"] = (int(buttons[1][0]), int(buttons[1][1]))
+        machine["Prize"] = (int(prize[0][0]), int(prize[0][1]))
+        machines.append(machine)
+    return machines
+
+def part_1(machines):
+    tokens = 0
+    for machine in machines:
+        wins = []
+        for an in range(100):
+            for bn in range(100):
+                x = machine["A"][0] * an + machine["B"][0] * bn
+                y = machine["A"][1] * an + machine["B"][1] * bn
+                if x == machine["Prize"][0] and y == machine["Prize"][1]:
+                    wins.append((an, bn))
+        if len(wins) == 0:
+            continue
+        min_token = (wins[0][0] * 3, wins[0][1])
+        for (a, b) in wins:
+            if a * 3 < min_token[0] and b < min_token[1]:
+                min_token = (a * 3, b)
+        tokens += min_token[0] + min_token[1]
+    return tokens
+
+def part_2(machines):
+    tokens = 0
+    offset = 10000000000000
+    for machine in machines:
+        px = machine["Prize"][0] + offset
+        py = machine["Prize"][1] + offset
+        (ax, ay) = machine["A"]
+        (bx, by) = machine["B"]
+        d = ax * by - ay * bx
+
+        if d == 0:
+            continue
+
+        a = (px * by - py * bx) / d
+        b = (ax * py - ay * px) / d
+
+        if a >= 0 and b >= 0 and abs(a - round(a)) < 1e-10 and abs(b - round(b)) < 1e-10:
+            tokens += 3 * int(round(a)) + int(round(b))
+    return tokens
+
+if __name__ == "__main__":
+    machines = parse_input()
+    print(f"Part 1: {part_1(machines)}")
+    print(f"Part 2: {part_2(machines)}")
