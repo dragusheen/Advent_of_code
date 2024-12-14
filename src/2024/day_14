@@ -1,0 +1,94 @@
+#!/usr/bin/python3
+
+import math
+import re
+from collections import Counter
+from PIL import Image, ImageDraw, ImageFont
+DATA_PATH = "./data/2024/day_14.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def parse_robots():
+    robots = []
+    for line in get_file_content(DATA_PATH).split("\n"):
+        matches = re.findall(r"-?\d+", line)
+        robots.append({
+            "p": (int(matches[0]), int(matches[1])),
+            "v": (int(matches[2]), int(matches[3])),
+        })
+    return robots
+
+def display_grid(robots, grid_config):
+    positions = Counter()
+    for robot in robots:
+        positions[robot["p"]] += 1
+    quads = {
+        ((0, 0), (int(grid_config[0] / 2), int(grid_config[0] / 2))): 0,
+        ((int(math.ceil(grid_config[0] / 2)), 0), (grid_config[0], int(grid_config[0] / 2))): 0,
+        ((0, int(math.ceil(grid_config[0] / 2))), (int(grid_config[0] / 2), grid_config[1])): 0,
+        ((int(math.ceil(grid_config[0] / 2)), int(math.ceil(grid_config[0] / 2))), (grid_config[0], grid_config[1])): 0,
+    }
+    for i in range(grid_config[1]):
+        for j in range(grid_config[0]):
+            count = positions[(j, i)]
+            print(f"{'.' if count == 0 else count}", end="")
+        print()
+    print()
+
+def forward(robot, grid_config):
+    x = (robot["p"][0] + robot["v"][0]) % grid_config[0]
+    y = (robot["p"][1] + robot["v"][1]) % grid_config[1]
+    robot["p"] = (x, y)
+
+
+def get_quads(robots, grid_config):
+    quads = {
+        ((0, 0), (int(grid_config[0] / 2), int(grid_config[1] / 2))): 0,
+        ((int(math.ceil(grid_config[0] / 2)), 0), (grid_config[0], int(grid_config[1] / 2))): 0,
+        ((0, int(math.ceil(grid_config[1] / 2))), (int(grid_config[0] / 2), grid_config[1])): 0,
+        ((int(math.ceil(grid_config[0] / 2)), int(math.ceil(grid_config[1] / 2))), (grid_config[0], grid_config[1])): 0,
+    }
+    for robot in robots:
+        for quad in quads:
+            (tx, ty) = quad[0]
+            (bx, by) = quad[1]
+            (x, y) = robot["p"]
+            if tx <= x < bx and ty <= y < by:
+                quads[quad] += 1
+    return quads
+
+def part_1(grid_config, robots, seconds):
+    for _ in range(seconds):
+        for robot in robots:
+            forward(robot, grid_config)
+        display_grid
+    quads = get_quads(robots, grid_config)
+    tot = 1
+    for quad in quads:
+        tot *= quads[quad]
+    return tot
+
+def part_2(grid_config, robots):
+    seconds = 0
+
+    while seconds < 10001:
+        seconds += 1
+        grid = [[0 for _ in range(grid_config[0])] for _ in range(grid_config[1])]
+        for robot in robots:
+            forward(robot, grid_config)
+            x, y = robot["p"]
+            grid[y][x] = 1
+        image = Image.new("RGB", (grid_config[0], grid_config[1]), "white")
+        draw = ImageDraw.Draw(image)
+        for y in range(grid_config[1]):
+            for x in range(grid_config[0]):
+                if grid[y][x] == 1:
+                    draw.point((x, y), fill="black")
+        image.save(f"images/{seconds}.png")
+
+if __name__ == "__main__":
+    robots = parse_robots()
+    print(f"Part 1: {part_1((101, 103), robots, 100)}")
+    print(f"Part 2: {part_2((101, 103), robots)}")
