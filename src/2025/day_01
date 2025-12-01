@@ -1,0 +1,49 @@
+#!/usr/bin/python3
+
+import re
+
+DATA_PATH = "./data/2025/day_01.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def break_value(s):
+    match = re.match(r'([LR])(\d+)', s)
+    if match:
+        direction = match.group(1)
+        value = int(match.group(2))
+        return (1 if direction == 'R' else -1, value)
+    return None
+
+def zero_counter(content, count_rotation: bool):
+    zero_counter = 0
+    dial_value = 50
+
+    for line in content:
+        if not line:
+            continue
+
+        result = break_value(line)
+        if not result:
+            continue
+
+        direction, value = result
+        for _ in range(value):
+            dial_value += direction
+            if dial_value > 99:
+                dial_value -=100
+            if dial_value < 0:
+                dial_value += 100
+            if dial_value == 0 and count_rotation:
+                zero_counter += 1
+        if dial_value == 0 and not count_rotation:
+            zero_counter += 1
+    return zero_counter
+
+
+if __name__ == "__main__":
+    content = get_file_content(DATA_PATH)
+    content = content.split("\n")
+    print(f"Part 1: {zero_counter(content, False)}")
+    print(f"Part 2: {zero_counter(content, True)}")
