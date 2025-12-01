@@ -1,0 +1,48 @@
+#!/usr/bin/python3
+
+def incrementPassword(password):
+    # password is a list of characters
+    for i in range(len(password) - 1, -1, -1):
+        if password[i] == "z":
+            password[i] = "a"
+        else:
+            password[i] = chr(ord(password[i]) + 1)
+            break
+    return password
+
+def includeStraightLetter(password):
+    for i in range(len(password) - 2):
+        if ord(password[i]) + 1 == ord(password[i + 1]) and ord(password[i + 1]) + 1 == ord(password[i + 2]):
+            return True
+    return False
+
+def containBannedLetters(password):
+    for letter in password:
+        if letter in ["i", "o", "l"]:
+            return True
+    return False
+
+def containTwoDouble(password):
+    i = 0
+    counter = 0
+    while i < len(password) - 1:
+        if password[i] == password[i + 1]:
+            counter += 1
+            i += 1
+        i += 1
+    return counter >= 2
+
+
+def generateNewPassword(oldPassword):
+    newPassword = incrementPassword(list(oldPassword))
+    while True:
+        if not containBannedLetters(newPassword) and includeStraightLetter(newPassword) and containTwoDouble(newPassword):
+            break
+        newPassword = incrementPassword(newPassword)
+    return "".join(newPassword)
+
+if __name__ == "__main__":
+    p1 = generateNewPassword('cqjxjnds')
+    p2 = generateNewPassword(p1)
+    print(f"Part 1: {p1}")
+    print(f"Part 2: {p2}")
