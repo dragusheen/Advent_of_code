@@ -1,0 +1,58 @@
+#!/usr/bin/python3
+
+DATA_PATH = "./data/2025/day_02.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def get_ranges():
+    content = get_file_content(DATA_PATH)
+    content = content.split(",")
+    ranges = []
+    for range in content:
+        limits = range.split("-")
+        ranges.append((int(limits[0]), int(limits[1])))
+    return ranges
+
+def isInvalidSequencePart1(sequence):
+    if len(sequence) % 2 != 0:
+        return False
+    midpoint = len(sequence) // 2
+    first_half = sequence[:midpoint]
+    second_half = sequence[midpoint:]
+    for i in range(len(first_half)):
+        if first_half[i] != second_half[i]:
+            return False
+    return True
+
+
+def SplitStringInLen(string, length):
+    return [string[0 + i:length + i] for i in range(0, len(string), length)]
+
+def isInvalidSequencePart2(sequence):
+    for lenRange in [_ for _ in range(1, len(sequence))]:
+        sequences = SplitStringInLen(sequence, lenRange)
+        flag = False
+        for i in range(1, len(sequences)):
+            if sequences[0] != sequences[i]:
+                flag = True
+                break
+        if not flag:
+            return True
+    return False
+
+
+def CheckForInvalidSequence(ranges, IsInvalidSequence):
+    invalidSequences = []
+    for (first, last) in ranges:
+        for sequence in range(first, last + 1):
+            if IsInvalidSequence(str(sequence)):
+                invalidSequences.append(sequence)
+    return sum(invalidSequences)
+
+
+if __name__ == "__main__":
+    ranges = get_ranges()
+    print(f"Part 1: {CheckForInvalidSequence(ranges, isInvalidSequencePart1)}")
+    print(f"Part 2: {CheckForInvalidSequence(ranges, isInvalidSequencePart2)}")
