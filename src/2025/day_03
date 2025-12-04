@@ -1,0 +1,48 @@
+#!/usr/bin/python3
+
+DATA_PATH = "./data/2025/day_03.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+
+def best_subsequence_value(line, num):
+    digits = [d for d in line]
+    n = len(digits)
+    if n < num:
+        return 0
+
+    result = []
+    start = 0
+
+    for remaining in range(num, 0, -1):
+        end = n - remaining
+
+        best_digit = '0'
+        best_pos = start
+
+        for i in range(start, end + 1):
+            if digits[i] > best_digit:
+                best_digit = digits[i]
+                best_pos = i
+                if best_digit == '9':
+                    break
+
+        result.append(best_digit)
+        start = best_pos + 1
+
+    return int("".join(result))
+
+
+def linesLoop(content, num):
+    total_sum = 0
+    for line in content:
+        total_sum += best_subsequence_value(line, num)
+    return total_sum
+
+
+if __name__ == "__main__":
+    content = get_file_content(DATA_PATH).split("\n")
+    print(f"Part 1: {linesLoop(content, 2)}")
+    print(f"Part 2: {linesLoop(content, 12)}")
