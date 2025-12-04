@@ -1,0 +1,70 @@
+#!/usr/bin/python3
+
+import re
+
+DATA_PATH = "./data/2015/day_14.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def parseLine(line):
+    pattern = re.compile(
+        r"^(\w+)\s+can fly\s+(\d+)\s+km/s for\s+(\d+)\s+seconds, but then must rest for\s+(\d+)\s+seconds\.$"
+    )
+
+    match = pattern.match(line)
+    if match:
+        name = match.group(1)
+        speed = int(match.group(2))
+        duration = int(match.group(3))
+        rest = int(match.group(4))
+
+        return(name, speed, duration, rest)
+    return None
+
+def getConfig(content):
+    reindeer = {}
+    for line in content:
+        name, speed, duration, rest = parseLine(line)
+        reindeer[name] = {
+            "speed": speed,
+            "runTimer": duration,
+            "restTimer": rest,
+            "cooldown": duration,
+            "distance": 0,
+            "state": 1,
+            "score": 0,
+        }
+    return reindeer
+
+
+def startCourse(content, time):
+    reindeer = getConfig(content)
+    for _ in range(time):
+        for name, config in reindeer.items():
+            if config["state"] == 1:
+                config["distance"] += config["speed"]
+            config["cooldown"] -= 1
+            if config["cooldown"] == 0:
+                if config["state"] == 1:
+                    config["state"] = 0
+                    config["cooldown"] = config["restTimer"]
+                else:
+                    config["state"] = 1
+                    config["cooldown"] = config["runTimer"]
+        maxDistance = max(r["distance"] for r in reindeer.values())
+        for name, config in reindeer.items():
+            if config["distance"] == maxDistance:
+                config["score"] += 1
+    return reindeer
+
+
+def part_2(content):
+    pass
+
+if __name__ == "__main__":
+    content = [row for row in get_file_content(DATA_PATH).split("\n") if row]
+    reindeer = startCourse(content, 2503)
+    print(f"Part 1: {max(r["distance"] for r in reindeer.values())}")
+    print(f"Part 2: {max(r["score"] for r in reindeer.values())}")
