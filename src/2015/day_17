@@ -1,0 +1,33 @@
+#!/usr/bin/python3
+
+import itertools
+
+
+DATA_PATH = "./data/2015/day_17.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def combinationsGenerator(values):
+    ps = []
+    for r in range(len(content) + 1):
+        ps.extend(itertools.combinations(content, r))
+    return ps
+
+def findAllCombinations(content, maxValue):
+    combinations = []
+    for combination in combinationsGenerator(content):
+        if sum(combination) == maxValue:
+            combinations.append(combination)
+    return combinations
+
+def findMinimumContainers(combinations):
+    minLen = min([len(c) for c in combinations])
+    return len(list(filter(lambda c: len(c) == minLen, combinations)))
+
+if __name__ == "__main__":
+    content = [int(row) for row in get_file_content(DATA_PATH).split("\n") if row]
+    combinations = findAllCombinations(content, 150)
+    print(f"Part 1: {len(combinations)}")
+    print(f"Part 2: {findMinimumContainers(combinations)}")
