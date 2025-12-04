@@ -47,8 +47,7 @@ if [ ! -f "./src/$YEAR/$DAY" ]; then
     echo "    pass" >> ./src/$YEAR/day_$DAY
     echo "" >> ./src/$YEAR/day_$DAY
     echo "if __name__ == \"__main__\":" >> ./src/$YEAR/day_$DAY
-    echo "    content = get_file_content(DATA_PATH)" >> ./src/$YEAR/day_$DAY
-    echo "    content = content.split(\"\n\")" >> ./src/$YEAR/day_$DAY
+    echo "    content = [row for row in get_file_content(DATA_PATH).split(\"\n\") if row]" >> ./src/$YEAR/day_$DAY
     echo "    print(f\"Part 1: {part_1(content)}\")" >> ./src/$YEAR/day_$DAY
     echo "    print(f\"Part 2: {part_2(content)}\")" >> ./src/$YEAR/day_$DAY
 

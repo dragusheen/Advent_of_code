@@ -1,0 +1,97 @@
+#!/usr/bin/python3
+
+import re
+
+DATA_PATH = "./data/2015/day_15.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def parseLine(line):
+    pattern = re.compile(
+        r"^(\w+): capacity (-?\d+), durability (-?\d+), flavor (-?\d+), texture (-?\d+), calories (-?\d+)$"
+    )
+
+    match = pattern.match(line)
+    if match:
+        name = match.group(1)
+        capacity = int(match.group(2))
+        durability = int(match.group(3))
+        flavor = int(match.group(4))
+        texture = int(match.group(5))
+        calories = int(match.group(6))
+
+        return name, capacity, durability, flavor, texture, calories
+    return None
+
+def allCombinations(total, n):
+    if n == 1:
+        yield [total]
+    else:
+        for i in range(total + 1):
+            for tail in allCombinations(total - i, n - 1):
+                yield [i] + tail
+
+def getCookieScore(ingredients, combinations, keys):
+    total = {}
+    for k in keys:
+        total[k] = 0
+    for i in range(len(combinations)):
+        combination = combinations[i]
+        for ingredient in ingredients[i]:
+            if ingredient not in total:
+                continue
+            tmp = ingredients[i][ingredient] * combination
+            total[ingredient] += tmp
+    for k in total:
+        if total[k] < 0:
+            total[k] = 0
+    return total
+
+def getIngredients(content):
+    ingredients = []
+    for line in content:
+        name, capacity, durability, flavor, texture, calories = parseLine(line)
+        if name:
+            ingredients.append({
+                "capacity": capacity,
+                "durability": durability,
+                "flavor": flavor,
+                "texture": texture,
+                "calories": calories
+            })
+    return ingredients
+
+
+def part_1(content):
+    ingredients = getIngredients(content)
+    combinations = allCombinations(100, len(ingredients))
+    maxScore = -1
+    for combination in combinations:
+        tmp = getCookieScore(ingredients, combination, ["capacity", "durability", "flavor", "texture"])
+        score = 1
+        for k in tmp:
+            score *= tmp[k]
+        if score > maxScore:
+            maxScore = score
+    return maxScore
+
+def part_2(content):
+    ingredients = getIngredients(content)
+    combinations = allCombinations(100, len(ingredients))
+    maxScore = -1
+    for combination in combinations:
+        tmp = getCookieScore(ingredients, combination, ["capacity", "durability", "flavor", "texture", "calories"])
+        tmp["calories"] = 0 if tmp["calories"] != 500 else 1
+        score = 1
+        for k in tmp:
+            score *= tmp[k]
+        if score > maxScore:
+            maxScore = score
+    return maxScore
+
+if __name__ == "__main__":
+    content = [row for row in get_file_content(DATA_PATH).split("\n") if row]
+    print(f"Part 1: {part_1(content)}")
+    print(f"Part 2: {part_2(content)}")
