@@ -1,0 +1,78 @@
+#!/usr/bin/python3
+
+import re
+import itertools
+
+DATA_PATH = "./data/2015/day_13.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def parseLine(line):
+    pattern = re.compile(
+        r"^(\w+)\s+would\s+(gain|lose)\s+(\d+)\s+happiness units by sitting next to\s+(\w+)\.$"
+    )
+    match = pattern.match(line)
+    if match:
+        person = match.group(1)
+        op = match.group(2)
+        amount = int(match.group(3))
+        neighbor = match.group(4)
+        if op == "lose":
+            amount = -amount
+        return (person, neighbor, amount)
+    return None
+
+def groupDatas(datas):
+    groups = {}
+    for data in datas:
+        if data is None:
+            continue
+        person, neighbor, amount = data
+        if person not in groups:
+            groups[person] = {}
+        groups[person][neighbor] = amount
+    return [person for person in groups], groups
+
+def calculateHappinss(persons, datas):
+    total = 0
+    for i in range(len(persons)):
+        right = persons[(i + 1) % len(persons)]
+        left = persons[(i - 1) % len(persons)]
+        total += datas[persons[i]][right]
+        total += datas[persons[i]][left]
+    return total
+
+def part_1(content):
+    persons, datas = groupDatas([parseLine(line) for line in content])
+    maxTotal = 0
+    for config in itertools.permutations(persons):
+        total = calculateHappinss(config, datas)
+        if total > maxTotal:
+            maxTotal = total
+    return maxTotal
+
+def addMe(persons, datas):
+    datas["Me"] = {}
+    for person in persons:
+        datas[person]["Me"] = 0
+        datas["Me"][person] = 0
+    persons.append("Me")
+    return persons, datas
+
+def part_2(content):
+    persons, datas = groupDatas([parseLine(line) for line in content])
+    persons, datas = addMe(persons, datas)
+    maxTotal = 0
+    for config in itertools.permutations(persons):
+        total = calculateHappinss(config, datas)
+        if total > maxTotal:
+            maxTotal = total
+    return maxTotal
+
+if __name__ == "__main__":
+    content = get_file_content(DATA_PATH)
+    content = content.split("\n")
+    print(f"Part 1: {part_1(content)}")
+    print(f"Part 2: {part_2(content)}")
