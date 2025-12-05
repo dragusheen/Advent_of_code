@@ -1,0 +1,54 @@
+#!/usr/bin/python3
+
+DATA_PATH = "./data/2025/day_05.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def getConfig():
+    content = get_file_content(DATA_PATH).split("\n\n")
+    ranges = [
+        tuple(map(int, line.split("-")))
+        for line in content[0].splitlines()
+    ]
+    ids = [int(x) for x in content[1].splitlines()]
+    return ranges, ids
+
+def part_1(ranges, ids):
+    fresh = 0
+    for id in ids:
+        if any(start <= id <= end for start, end in ranges):
+            fresh += 1
+    return fresh
+
+def rangesOverlap(r1, r2):
+    return not (r1[1] < r2[0] or r2[1] < r1[0])
+
+def part_2(ranges):
+    ranges.sort()
+
+    uniqueRanges = []
+    for range_ in ranges:
+        for i in range(len(uniqueRanges)):
+            uniqueRange = uniqueRanges[i]
+            if rangesOverlap(range_, uniqueRange):
+                uniqueRanges[i] = (
+                    min(range_[0], uniqueRange[0]),
+                    max(range_[1], uniqueRange[1])
+                )
+                break
+        else:
+            uniqueRanges.append(range_)
+
+    fresh = 0
+    for uniqueRange in uniqueRanges:
+        fresh += uniqueRange[1] - uniqueRange[0] + 1
+    return fresh
+
+
+
+if __name__ == "__main__":
+    ranges, ids = getConfig()
+    print(f"Part 1: {part_1(ranges, ids)}")
+    print(f"Part 2: {part_2(ranges)}")
