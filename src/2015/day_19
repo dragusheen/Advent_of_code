@@ -1,0 +1,60 @@
+#!/usr/bin/python3
+
+import random
+
+DATA_PATH = "./data/2015/day_19.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def getConfig():
+    content = get_file_content(DATA_PATH)
+    content = content.split("\n\n")
+    config = [row.split(" => ") for row in content[0].split("\n") if row]
+    molecule = [row for row in content[1].split("\n") if row]
+    return config, molecule[0]
+
+def generateNewMolecule(config, molecule, i):
+    part = molecule[i:i + len(config[0])]
+    if part == config[0]:
+        return molecule[:i] + config[1] + molecule[i + len(config[0]):]
+    return None
+
+
+def part_1(configs, molecule):
+    newMolecules = set()
+    for config in configs:
+        for i in range(len(molecule)):
+            newMolecule = generateNewMolecule(config, molecule, i)
+            if newMolecule:
+                newMolecules.add(newMolecule)
+    return len(newMolecules)
+
+
+
+def part_2(configs, molecule):
+    configs = [[right, left] for (left, right) in configs]
+
+    step = 0
+    while molecule != 'e':
+        step += 1
+        newMolecules = set()
+        for config in configs:
+            for i in range(len(molecule)):
+                newMolecule = generateNewMolecule(config, molecule, i)
+                if newMolecule and ('e' not in newMolecule or newMolecule == "e"):
+                    newMolecules.add(newMolecule)
+        
+        minLen = min([len(c) for c in newMolecules])
+        possibilities = list(filter(lambda c: len(c) == minLen, newMolecules))
+        molecule = possibilities[random.randint(0, len(possibilities) - 1)]
+    return step
+
+
+
+
+if __name__ == "__main__":
+    config, molecule = getConfig()
+    print(f"Part 1: {part_1(config, molecule)}")
+    print(f"Part 2: {part_2(config, molecule)}")
