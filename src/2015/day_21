@@ -1,0 +1,99 @@
+#!/usr/bin/python3
+
+DATAS_WEAPONS = [
+    {"cost": 8, "damage": 4, "armor": 0, "name": "Dagger" },
+    {"cost": 10, "damage": 5, "armor": 0, "name": "Shortsword" },
+    {"cost": 25, "damage": 6, "armor": 0, "name": "Warhammer" },
+    {"cost": 40, "damage": 7, "armor": 0, "name": "Longsword" },
+    {"cost": 74, "damage": 8, "armor": 0, "name": "Greataxe" }
+]
+
+DATAS_ARMORS = [
+	{"cost": 0, "damage": 0, "armor": 0, "name": "No Armor" },
+	{"cost": 13, "damage": 0, "armor": 1, "name": "Leather" },
+	{"cost": 31, "damage": 0, "armor": 2, "name": "Chainmail" },
+    {"cost": 53, "damage": 0, "armor": 3, "name": "Splintmail" },
+    {"cost": 75, "damage": 0, "armor": 4, "name": "Bandedmail" },
+    {"cost": 102, "damage": 0, "armor": 5, "name": "Platemail" },
+]
+
+DATAS_RINGS = [
+    {"cost": 0, "damage": 0, "armor": 0, "name": "No Ring 1" },
+    {"cost": 0, "damage": 0, "armor": 0, "name": "No Ring 2" },
+    {"cost": 20, "damage": 0, "armor": 1, "name": "Defense +1" },
+    {"cost": 25, "damage": 1, "armor": 0, "name": "Damage +1" },
+    {"cost": 40, "damage": 0, "armor": 2, "name": "Defense +2" },
+    {"cost": 50, "damage": 2, "armor": 0, "name": "Damage +2" },
+    {"cost": 80, "damage": 0, "armor": 3, "name": "Defense +3" },
+    {"cost": 100, "damage": 3, "armor": 0, "name": "Damage +3" },
+]
+
+DATAS_ENNEMY = {
+    "hit_points": 103,
+    "damage": 9,
+    "armor": 2,
+}
+
+# config = {
+#     "weapon": None,
+#     "armor": [],
+#     "rings": {
+#         "ringA": None,
+#         "ringB": None,
+#     }
+# }
+
+def generateConfiguration():
+    for weapon in DATAS_WEAPONS:
+        for armor in DATAS_ARMORS:
+            for i in range(len(DATAS_RINGS)):
+                for j in range(i + 1, len(DATAS_RINGS)):
+                    ringA = DATAS_RINGS[i]
+                    ringB = DATAS_RINGS[j]
+
+                    price = weapon["cost"] + armor["cost"] + ringA["cost"] + ringB["cost"]
+                    damage = weapon["damage"] + ringA["damage"] + ringB["damage"]
+                    arm = armor["armor"] + ringA["armor"] + ringB["armor"]
+
+                    yield {
+                        "price": price,
+                        "damage": damage,
+                        "armor": arm,
+                        "items": (weapon["name"], armor["name"], ringA["name"], ringB["name"])
+                    }
+    return None
+
+def simulateFight(player, ennemy):
+    player_hit_points = 100
+    ennemy_hit_points = ennemy["hit_points"]
+
+    while True:
+        damage_to_ennemy = max(1, player["damage"] - ennemy["armor"])
+        ennemy_hit_points -= damage_to_ennemy
+        if ennemy_hit_points <= 0:
+            return True
+
+        damage_to_player = max(1, ennemy["damage"] - player["armor"])
+        player_hit_points -= damage_to_player
+        if player_hit_points <= 0:
+            return False
+
+def part_1():
+    best = None  # best cost found
+    for config in generateConfiguration():
+        if simulateFight(config, DATAS_ENNEMY):
+            if best is None or config["price"] < best:
+                best = config["price"]
+    return best
+
+def part_2():
+    worst = None
+    for config in generateConfiguration():
+        if not simulateFight(config, DATAS_ENNEMY):
+            if worst is None or config["price"] > worst:
+                worst = config["price"]
+    return worst
+
+if __name__ == "__main__":
+    print(f"Part 1: {part_1()}")
+    print(f"Part 2: {part_2()}")
