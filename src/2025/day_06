@@ -1,0 +1,47 @@
+#!/usr/bin/python3
+
+from math import prod as mul
+
+DATA_PATH = "./data/2025/day_06.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+    
+def calculate(numbers, operations):
+    total = 0
+    for i in range(len(operations)):
+        func = sum if operations[i] == "+" else mul
+        total += func(numbers[i])
+    return total
+
+def part_1():
+    content = [row for row in get_file_content(DATA_PATH).split("\n") if row]
+    operations = [op for op in content[-1].split(" ") if op]
+    tmp = [[x for x in [x for x in content[i].split(" ") if x]] for i in range(len(content) - 1)]
+    numbers = [[int(tmp[j][i]) for j in range(len(tmp))] for i in range(len(operations))]
+    return calculate(numbers, operations)
+
+def part_2():
+    content = [row for row in get_file_content(DATA_PATH).split("\n") if row]
+    operations = [op for op in content[-1].split(" ") if op]
+    numbers = []
+    line = []
+
+    for i in range(len(content[0])):
+        number = []
+        for j in range(len(content) - 1):
+            if content[j][i] != " ":
+                number.append(content[j][i])
+        if number == []:
+            numbers.append(line)
+            line = []
+        else:
+            line.append(int("".join(number)))
+
+    numbers.append(line)
+    return calculate(numbers, operations)
+
+if __name__ == "__main__":
+    print(f"Part 1: {part_1()}")
+    print(f"Part 2: {part_2()}")
