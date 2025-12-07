@@ -1,0 +1,44 @@
+#!/usr/bin/python3
+
+DATA_PATH = "./data/2025/day_07.txt"
+MAP = []
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def locateStartPoint():
+    for j in range(len(MAP[0])):
+        if MAP[0][j] == 'S':
+            return j
+    return -1
+
+def sendBeam(i, j):    
+    if MAP[i][j] == '|':
+        return 0
+    MAP[i][j] = '|'
+
+    i += 1
+    if i >= len(MAP) or j < 0 or j >= len(MAP[0]):
+        return 0
+    return sendBeam(i, j - 1) + sendBeam(i, j + 1) + 1 if MAP[i][j] == '^' else sendBeam(i, j)
+
+def timeline(i, j, memo):
+    i += 1
+    if i >= len(MAP) or j < 0 or j >= len(MAP[0]):
+        return 1
+
+    pos = (i, j)
+    if pos in memo:
+        return memo[pos]
+
+    memo[pos] = timeline(i, j - 1, memo) + timeline(i, j + 1, memo) if MAP[i][j] == '^' else timeline(i, j, memo)
+    return memo[pos]
+
+
+
+if __name__ == "__main__":
+    MAP = [list(row) for row in get_file_content(DATA_PATH).split("\n") if row]
+    j = locateStartPoint()
+    print(f"Part 1: {sendBeam(0, j)}")
+    print(f"Part 2: {timeline(0, j, {})}")
