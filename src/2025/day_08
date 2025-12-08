@@ -1,0 +1,59 @@
+#!/usr/bin/python3
+
+import re
+import math
+import heapq
+
+DATA_PATH = "./data/2025/day_08.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def linkObject(obj, circuits):
+    _, coord1, coord2 = obj
+    list1 = [circuit for circuit in circuits if coord1 in circuit][0]
+    list2 = [circuit for circuit in circuits if coord2 in circuit][0]
+    if list1 == list2:
+        return
+    circuits.remove(list2)
+    list1.extend(list2)
+
+def getLinks(coords):
+    links = []
+    n = len(coords)
+    for i in range(n - 1):
+        for j in range(i + 1, n):
+            d = math.dist(coords[i], coords[j])
+            heapq.heappush(links, (d, coords[i], coords[j]))
+    links.sort(key=lambda x: x[0])
+    return links
+
+def part_1(links, circuits, step):
+    for _ in range(step):
+        link = links.pop(0)
+        linkObject(link, circuits)
+
+    sizes = sorted((len(c) for c in circuits), reverse=True)
+    while len(sizes) < 3:
+        sizes.append(1)
+    return sizes[0] * sizes[1] * sizes[2]
+
+def part_2(links, circuits):
+    while True:
+        if len(links) <= 0:
+            return -1
+        link = links.pop(0)
+        linkObject(link, circuits)
+        if len(circuits) == 1:
+            _, coord1, coord2 = link
+            return coord1[0] * coord2[0]
+
+if __name__ == "__main__":
+    content = [row for row in get_file_content(DATA_PATH).split("\n") if row]
+    coords = [tuple(map(int, row.split(","))) for row in content]
+    links = getLinks(coords)
+    circuits = [[_] for _ in coords]
+
+    print(f"Part 1: {part_1(links, circuits, 1000)}")
+    print(f"Part 2: {part_2(links, circuits)}")
