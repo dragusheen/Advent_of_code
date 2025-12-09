@@ -1,0 +1,55 @@
+#!/usr/bin/python3
+
+DATA_PATH = "./data/2025/day_09.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def calculateAbsoluteArea(c1, c2):
+    x1, y1 = c1
+    x2, y2 = c2
+    l = max(x1, x2) - min(x1, x2) + 1
+    w = max(y1, y2) - min(y1, y2) + 1
+    return abs(l * w)
+
+def part_1(coords):
+    rectanglesCoords = []
+    for i in range(len(coords) - 1):
+        for j in range(i + 1, len(coords)):
+            rectanglesCoords.append((coords[i], coords[j]))
+
+    rects = []
+    for (c1, c2) in rectanglesCoords:
+        area = calculateAbsoluteArea(c1, c2)
+        rects.append((area, c1, c2))
+    rects.sort(key=lambda r: r[0], reverse=True)
+    return rects
+
+def part_2(rects, coords):
+    n_coords = len(coords)
+    for area, c1, c2 in rects:
+        left, right = sorted((c1[0], c2[0]))
+        lo, hi = sorted((c1[1], c2[1]))
+        x2, y2 = c1
+
+        for i in range(n_coords):
+            x1, y1, x2, y2 = x2, y2, *coords[(i + coords.index(c1)) % n_coords]
+            xmin, xmax = sorted((x1, x2))
+            ymin, ymax = sorted((y1, y2))
+            if (
+                (left < x1 < right and lo < y1 < hi)
+                or (lo < y1 < hi and xmin <= left < xmax and xmin < right <= xmax)
+                or (left < x1 < right and ymin <= lo < ymax and ymin < hi <= ymax)
+            ):
+                break
+        else:
+            return area
+    return -1
+
+if __name__ == "__main__":
+    content = [row for row in get_file_content(DATA_PATH).split("\n") if row]
+    coords = [tuple(map(int, row.split(","))) for row in content]
+    rects = part_1(coords)
+    print(f"Part 1: {rects[0][0]}")
+    print(f"Part 2: {part_2(rects, coords)}")
