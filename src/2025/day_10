@@ -1,0 +1,68 @@
+#!/usr/bin/python3
+
+from itertools import combinations
+
+DATA_PATH = "./data/2025/day_10.txt"
+
+def get_file_content(filepath):
+    with open(filepath, 'r') as file:
+        return file.read()
+
+def getConfigs():
+    configs = []
+    for line in [row for row in get_file_content(DATA_PATH).split("\n") if row]:
+        splitted = line.split(" ")
+        lights = list(map(lambda x: 1 if x == "#" else 0, splitted[0][1:-1]))
+        joltages = list(map(int, splitted[-1][1:-1].split(",")))
+        buttons = list(map(lambda x: list(map(int, x[1:-1].split(","))), splitted[1:-1]))
+        configs.append({
+            "lights": lights,
+            "joltages": joltages,
+            "buttons": buttons
+        })
+    return configs
+
+def solveConfigP1(config):
+    n = len(config["buttons"])
+
+    for r in range(1, n+1):
+        for combo in combinations(range(n), r):
+            l = [0]*len(config["lights"])
+            for b in combo:
+                for i in config["buttons"][b]:
+                    l[i] ^= 1
+            if l == config["lights"]:
+                return r
+    return -1
+
+def solveConfigP2(config):
+    buttons = config["buttons"]
+    target = config["joltages"]
+    n = len(buttons)
+    m = len(target)
+    best = [float("inf")]
+
+    def dfs(idx, current, presses):
+        if presses >= best[0]:
+            return
+        if idx == n:
+            if current == target:
+                best[0] = presses
+            return
+        max_press = max(target)
+        for k in range(max_press+1):
+            new_current = current[:]
+            for i in buttons[idx]:
+                new_current[i] += k
+            dfs(idx+1, new_current, presses + k)
+
+    dfs(0, [0]*m, 0)
+    return best[0]
+
+def solveConfigs(configs, solveConfigFunc):
+    return sum(solveConfigFunc(config) for config in configs)
+
+if __name__ == "__main__":
+    configs = getConfigs()
+    print(f"Part 1: {solveConfigs(configs, solveConfigP1)}")
+    print(f"Part 2: {solveConfigs(configs, solveConfigP2)}")
